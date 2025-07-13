@@ -1,0 +1,13 @@
+Flask
+Flask-Login
+Flask-Mail
+Flask-Babel
+Flask-SQLAlchemy
+Werkzeug
+pdfkit
+stripe
+pyotp
+qrcode
+APScheduler
+SQLAlchemy
+gunicorn
