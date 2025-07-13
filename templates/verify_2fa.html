@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Verify 2FA | Neon Invoice{% endblock %}
+{% block content %}
+<div class="form-container">
+    <h1 class="form-title">Verify Two-Factor Authentication</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label>6-digit code</label>
+            <input type="text" name="token" class="form-control" placeholder="123456" required>
+        </div>
+        
+        <button type="submit" class="btn btn-block">Verify</button>
+    </form>
+</div>
+{% endblock %}

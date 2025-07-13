@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice #{{ invoice.invoice_number }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; }
+        .invoice-container { max-width: 800px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .invoice-title { font-size: 24px; font-weight: bold; color: #6c5ce7; }
+        .from-to { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; }
+        th { background-color: #f5f6fa; }
+        .total { font-weight: bold; font-size: 18px; }
+        .payment-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #6c5ce7;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <div>
+                <div class="invoice-title">INVOICE</div>
+                <div>From: {{ current_user.username }}</div>
+                <div>Date: {{ invoice.date_created.strftime('%Y-%m-%d') }}</div>
+            </div>
+            <div>
+                <div><strong>Invoice #:</strong> {{ invoice.invoice_number }}</div>
+                <div><strong>Due Date:</strong> {{ invoice.due_date.strftime('%Y-%m-%d') }}</div>
+                <div><strong>Status:</strong> {{ invoice.status|upper }}</div>
+            </div>
+        </div>
+        
+        <div class="from-to">
+            <div>
+                <strong>From:</strong><br>
+                {{ current_user.username }}<br>
+                {{ current_user.email }}
+            </div>
+            <div>
+                <strong>To:</strong><br>
+                {{ invoice.client.name }}<br>
+                {{ invoice.client.email }}<br>
+                {{ invoice.client.phone }}
+            </div>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in invoice.items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ "%.2f"|format(item.price) }}</td>
+                    <td>${{ "%.2f"|format(item.quantity * item.price) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div style="text-align: right; margin-top: 20px;">
+            <div>Subtotal: ${{ "%.2f"|format(invoice.subtotal()) }}</div>
+            {% if invoice.tax_rate > 0 %}
+            <div>Tax ({{ "%.0f"|format(invoice.tax_rate) }}%): ${{ "%.2f"|format(invoice.tax_amount()) }}</div>
+            {% endif %}
+            {% if invoice.discount > 0 %}
+            <div>Discount: ${{ "%.2f"|format(invoice.discount) }}</div>
+            {% endif %}
+            <div class="total">Total: ${{ "%.2f"|format(invoice.total_amount()) }}</div>
+        </div>
+        
+        {% if invoice.notes %}
+        <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+            <strong>Notes:</strong>
+            <p>{{ invoice.notes }}</p>
+        </div>
+        {% endif %}
+        
+        {% if invoice.status != 'paid' %}
+        <div style="margin-top: 30px; text-align: center;">
+            <p>You can pay this invoice online by clicking the button below:</p>
+            <a href="{{ url_for('pay_invoice', invoice_id=invoice.id, _external=True) }}" class="payment-button">
+                Pay Invoice
+            </a>
+        </div>
+        {% endif %}
+        
+        <div style="margin-top: 40px; text-align: center; font-style: italic; color: #777;">
+            &copy; {{ now.year }} Neon Invoice Manager
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | Neon Invoice{% endblock %}
+{% block content %}
+<div class="dashboard-header">
+    <h1>Welcome, <span class="username">{{ name }}</span>!</h1>
+    <p class="subtitle">Your business at a glance</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card animate__animated animate__fadeInUp">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">{{ total_invoices }}</div>
+        <div class="stat-label">Total Invoices</div>
+    </div>
+    
+    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">${{ "%.2f"|format(total_revenue) }}</div>
+        <div class="stat-label">Total Revenue</div>
+    </div>
+    
+    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ paid_invoices }}</div>
+        <div class="stat-label">Paid Invoices</div>
+    </div>
+    
+    <div class="stat-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
+        <div class="stat-icon">⌛</div>
+        <div class="stat-value">{{ unpaid_invoices }}</div>
+        <div class="stat-label">Pending Invoices</div>
+    </div>
+</div>
+
+<div class="chart-container">
+    <h2>Revenue Comparison</h2>
+    <canvas id="revenueComparisonChart"></canvas>
+</div>
+
+<div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+        <a href="{{ url_for('create_invoice') }}" class="action-card animate__animated animate__fadeIn">
+            <div class="action-icon">🧾</div>
+            <h3>Create Invoice</h3>
+            <p>Generate a new invoice for your client</p>
+        </a>
+        
+        <a href="{{ url_for('clients') }}" class="action-card animate__animated animate__fadeIn" style="animation-delay: 0.1s">
+            <div class="action-icon">👥</div>
+            <h3>Manage Clients</h3>
+            <p>View and edit your clients</p>
+        </a>
+        
+        <a href="{{ url_for('products') }}" class="action-card animate__animated animate__fadeIn" style="animation-delay: 0.2s">
+            <div class="action-icon">📦</div>
+            <h3>Manage Products</h3>
+            <p>Add or edit your products</p>
+        </a>
+        
+        <a href="{{ url_for('reports') }}" class="action-card animate__animated animate__fadeIn" style="animation-delay: 0.3s">
+            <div class="action-icon">📈</div>
+            <h3>View Reports</h3>
+            <p>Analyze your business performance</p>
+        </a>
+    </div>
+</div>
+
+<div class="quick-section">
+    <h2>Latest Invoices</h2>
+    <div class="invoices-list">
+        {% for invoice in latest_invoices %}
+        <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="invoice-item">
+            <span class="invoice-number">{{ invoice.invoice_number }}</span>
+            <span class="client-name">{{ invoice.client.name }}</span>
+            <span class="amount">${{ "%.2f"|format(invoice.total_amount()) }}</span>
+            <span class="status-badge {{ invoice.status }}">{{ invoice.status|capitalize }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="quick-section">
+    <h2>Recent Clients</h2>
+    <div class="clients-list">
+        {% for client in latest_clients %}
+        <a href="{{ url_for('edit_client', client_id=client.id) }}" class="client-item">
+            <span class="client-name">{{ client.name }}</span>
+            <span class="client-email">{{ client.email }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .dashboard-header {
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .username {
+        color: var(--secondary);
+        text-decoration: underline;
+    }
+    
+    .subtitle {
+        color: var(--text);
+        opacity: 0.8;
+        font-size: 1.1rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .stat-card {
+        background-color: var(--card);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--text);
+        opacity: 0.8;
+        font-size: 0.9rem;
+    }
+    
+    .quick-actions {
+        margin-top: 3rem;
+    }
+    
+    .quick-actions h2 {
+        margin-bottom: 1.5rem;
+        color: var(--primary);
+        font-size: 1.8rem;
+    }
+    
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .action-card {
+        background-color: var(--card);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+        color: var(--text);
+        text-decoration: none;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+    }
+    
+    .action-card:hover .action-icon,
+    .action-card:hover h3,
+    .action-card:hover p {
+        color: white;
+    }
+    
+    .action-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--primary);
+    }
+    
+    .action-card h3 {
+        margin-bottom: 0.5rem;
+        color: var(--text);
+    }
+    
+    .action-card p {
+        color: var(--text);
+        opacity: 0.7;
+        font-size: 0.9rem;
+    }
+    
+    .chart-container {
+        background-color: var(--card);
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .quick-section {
+        background-color: var(--card);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .invoices-list, .clients-list {
+        display: grid;
+        gap: 1rem;
+    }
+    
+    .invoice-item, .client-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background-color: var(--bg);
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--text);
+    }
+    
+    .invoice-item:hover, .client-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+    
+    .status-badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .status-badge.paid {
+        background-color: rgba(0, 184, 148, 0.2);
+        color: #00b894;
+    }
+    
+    .status-badge.unpaid {
+        background-color: rgba(214, 48, 49, 0.2);
+        color: #d63031;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Revenue Comparison Chart
+        const revenueCtx = document.getElementById('revenueComparisonChart').getContext('2d');
+        const revenueData = {
+            current_month: {{ revenue_comparison.current_month }},
+            previous_month: {{ revenue_comparison.previous_month }}
+        };
+        
+        new Chart(revenueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Current Month', 'Previous Month'],
+                datasets: [{
+                    label: 'Revenue ($)',
+                    data: [revenueData.current_month, revenueData.previous_month],
+                    backgroundColor: [
+                        'rgba(108, 92, 231, 0.7)',
+                        'rgba(108, 92, 231, 0.4)'
+                    ],
+                    borderColor: [
+                        'rgba(108, 92, 231, 1)',
+                        'rgba(108, 92, 231, 0.7)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

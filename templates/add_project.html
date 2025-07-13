@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}Add Project | Neon Invoice{% endblock %}
+{% block content %}
+<div class="project-form-container">
+    <h1 class="form-title">Create New Project</h1>
+    
+    <form method="POST" class="project-form">
+        <div class="form-group">
+            <label for="project-name">Project Name</label>
+            <input type="text" id="project-name" name="name" class="form-control" 
+                   placeholder="e.g. Website Redesign" required>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <div class="date-input-group">
+                    <label for="start-date">Start Date</label>
+                    <input type="date" id="start-date" name="start_date" 
+                           class="form-control" value="{{ today }}" required
+                           min="{{ today }}">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="date-input-group">
+                    <label for="end-date">End Date (Optional)</label>
+                    <input type="date" id="end-date" name="end_date" 
+                           class="form-control">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="project-budget">Budget (Optional)</label>
+            <div class="budget-input">
+                <input type="number" id="project-budget" name="budget" 
+                       step="0.01" min="0" class="form-control" 
+                       placeholder="5000.00">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="project-description">Description (Optional)</label>
+            <textarea id="project-description" name="description" 
+                      class="form-control" rows="4"
+                      placeholder="Brief description of the project..."></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Create Project
+            </button>
+            <a href="{{ url_for('projects') }}" class="btn cancel-btn">
+                <i class="fas fa-times"></i> Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Date validation
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+    
+    if (startDateInput && endDateInput) {
+        startDateInput.addEventListener('change', function() {
+            if (endDateInput.value && endDateInput.value < this.value) {
+                alert('End date must be after start date');
+                endDateInput.value = '';
+            }
+            endDateInput.min = this.value;
+        });
+        
+        endDateInput.addEventListener('change', function() {
+            if (this.value && this.value < startDateInput.value) {
+                alert('End date must be after start date');
+                this.value = '';
+            }
+        });
+    }
+    
+    // Budget validation
+    const budgetInput = document.getElementById('project-budget');
+    if (budgetInput) {
+        budgetInput.addEventListener('blur', function() {
+            if (this.value && parseFloat(this.value) < 0) {
+                alert('Budget cannot be negative');
+                this.value = '';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

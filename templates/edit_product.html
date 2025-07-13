@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Edit Product | Neon Invoice{% endblock %}
+{% block content %}
+<div class="form-container floating">
+    <h1 class="form-title">Edit Product</h1>
+    
+    <form method="POST" class="animate__animated animate__fadeIn">
+        <div class="form-group">
+            <label>Product Name</label>
+            <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Price ($)</label>
+            <input type="number" name="price" step="0.01" class="form-control" value="{{ product.price }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="3">{{ product.description }}</textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn">Save Changes</button>
+            <a href="{{ url_for('products') }}" class="btn cancel-btn">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

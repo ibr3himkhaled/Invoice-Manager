@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}Reports | Neon Invoice{% endblock %}
+{% block content %}
+<div class="reports-container">
+    <h1>Business Reports</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">{{ total_invoices }}</div>
+            <div class="stat-label">Total Invoices</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">${{ "%.2f"|format(total_revenue) }}</div>
+            <div class="stat-label">Total Revenue</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">{{ paid_invoices }}</div>
+            <div class="stat-label">Paid Invoices</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⌛</div>
+            <div class="stat-value">{{ unpaid_invoices }}</div>
+            <div class="stat-label">Pending Invoices</div>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <h2>Monthly Income</h2>
+        <canvas id="incomeChart"></canvas>
+    </div>
+    
+    <div class="chart-container">
+        <h2>Invoice Status</h2>
+        <canvas id="statusChart"></canvas>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Monthly Income Chart
+        const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+        const monthlyData = JSON.parse('{{ monthly_data|tojson|safe }}');
+        
+        new Chart(incomeCtx, {
+            type: 'bar',
+            data: {
+                labels: monthlyData.map(item => item.month),
+                datasets: [{
+                    label: 'Income ($)',
+                    data: monthlyData.map(item => item.total || 0),
+                    backgroundColor: 'rgba(108, 92, 231, 0.7)',
+                    borderColor: 'rgba(108, 92, 231, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Invoice Status Chart
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Paid', 'Unpaid'],
+                datasets: [{
+                    data: [{{ paid_invoices }}, {{ unpaid_invoices }}],
+                    backgroundColor: [
+                        'rgba(0, 184, 148, 0.7)',
+                        'rgba(214, 48, 49, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 184, 148, 1)',
+                        'rgba(214, 48, 49, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+    .reports-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .reports-container h1 {
+        color: var(--primary);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+    
+    .stat-card {
+        background-color: var(--card);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--text);
+        opacity: 0.8;
+    }
+    
+    .chart-container {
+        background-color: var(--card);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .chart-container h2 {
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}

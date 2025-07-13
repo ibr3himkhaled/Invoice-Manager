@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ project.name }}</h2>
+    <p>{{ project.description }}</p>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Project Details</div>
+                <div class="card-body">
+                    <p><strong>Start Date:</strong> {{ project.start_date.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>End Date:</strong> {{ project.end_date.strftime('%Y-%m-%d') if project.end_date else 'Ongoing' }}</p>
+                    <p><strong>Budget:</strong> ${{ "%.2f"|format(project.budget) if project.budget else 'Not specified' }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Financial Summary</div>
+                <div class="card-body">
+                    <p><strong>Total Invoiced:</strong> ${{ "%.2f"|format(total_invoiced) }}</p>
+                    <p><strong>Total Expenses:</strong> ${{ "%.2f"|format(total_expenses) }}</p>
+                    {% if project.budget %}
+                    <p><strong>Remaining Budget:</strong> ${{ "%.2f"|format(project.budget - total_expenses) }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <h4>Invoices</h4>
+        <table class="table">
+            <!-- جدول الفواتير -->
+        </table>
+        
+        <h4>Expenses</h4>
+        <table class="table">
+            <!-- جدول المصروفات -->
+        </table>
+    </div>
+</div>
+{% endblock %}

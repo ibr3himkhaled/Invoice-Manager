@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Pay Invoice | Neon Invoice{% endblock %}
+{% block content %}
+<div class="form-container">
+    <h1 class="form-title">Pay Invoice #{{ invoice.invoice_number }}</h1>
+    
+    <div class="payment-summary">
+        <p><strong>Client:</strong> {{ invoice.client.name }}</p>
+        <p><strong>Amount Due:</strong> ${{ "%.2f"|format(invoice.total_amount()) }}</p>
+        <p><strong>Due Date:</strong> {{ invoice.due_date.strftime('%Y-%m-%d') }}</p>
+        {% if invoice.status == 'paid' %}
+        <div class="alert alert-success">
+            This invoice has already been paid
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if invoice.status != 'paid' %}
+    <form method="POST">
+        <button type="submit" class="btn btn-block">Pay with Credit Card</button>
+        <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="btn cancel-btn">Cancel</a>
+    </form>
+    {% else %}
+    <a href="{{ url_for('view_invoice', invoice_id=invoice.id) }}" class="btn btn-block">Back to Invoice</a>
+    {% endif %}
+</div>
+
+<style>
+    .payment-summary {
+        background-color: var(--card);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .payment-summary p {
+        margin-bottom: 0.5rem;
+    }
+    
+    .alert {
+        padding: 0.75rem 1.25rem;
+        margin-top: 1rem;
+        border-radius: 0.25rem;
+    }
+    
+    .alert-success {
+        background-color: rgba(0, 184, 148, 0.2);
+        color: #00b894;
+        border-left: 4px solid #00b894;
+    }
+</style>
+{% endblock %}

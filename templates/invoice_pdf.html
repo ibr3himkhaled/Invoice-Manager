@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice {{ invoice.invoice_number }}</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        .invoice-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border: 1px solid #ccc;
+        }
+
+        .header {
+            border-bottom: 2px solid #6c5ce7;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+        }
+
+        .invoice-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6c5ce7;
+        }
+
+        .invoice-info {
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .from-to {
+            width: 100%;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .from-to table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .from-to td {
+            vertical-align: top;
+            padding: 10px;
+            border: 1px solid #eee;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #6c5ce7;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        table.items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table.items th {
+            background-color: #6c5ce7;
+            color: #fff;
+            text-align: left;
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        table.items td {
+            padding: 10px;
+            border: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .total-summary {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .total-summary .total {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .notes {
+            margin-top: 30px;
+            padding: 10px;
+            border-left: 4px solid #6c5ce7;
+            background-color: #f8f9fa;
+            font-size: 14px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-style: italic;
+            color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="header">
+            <table width="100%">
+                <tr>
+                    <td>
+                        <div class="invoice-title">INVOICE</div>
+                        <div><strong>From:</strong> {{ current_user.username }}</div>
+                        <div><strong>Email:</strong> {{ current_user.email }}</div>
+                    </td>
+                    <td class="invoice-info">
+                        <div><strong>Invoice #:</strong> {{ invoice.invoice_number }}</div>
+                        <div><strong>Date:</strong> {{ invoice.date_created.strftime('%Y-%m-%d') }}</div>
+                        <div><strong>Due Date:</strong> {{ invoice.due_date.strftime('%Y-%m-%d') }}</div>
+                        <div><strong>Status:</strong> {{ invoice.status|upper }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="from-to">
+            <table>
+                <tr>
+                    <td>
+                        <span class="section-title">From:</span>
+                        <div>{{ current_user.username }}</div>
+                        <div>{{ current_user.email }}</div>
+                    </td>
+                    <td>
+                        <span class="section-title">To:</span>
+                        <div>{{ invoice.client.name }}</div>
+                        <div>{{ invoice.client.email }}</div>
+                        <div>{{ invoice.client.phone }}</div>
+                        <div>{{ invoice.client.address }}</div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <table class="items">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in invoice.items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.description|default('N/A', true) }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ "%.2f"|format(item.price) }}</td>
+                    <td>${{ "%.2f"|format(item.quantity * item.price) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-summary text-right">
+            <div>Subtotal: ${{ "%.2f"|format(invoice.subtotal()) }}</div>
+            {% if invoice.tax_rate > 0 %}
+            <div>Tax ({{ "%.0f"|format(invoice.tax_rate) }}%): ${{ "%.2f"|format(invoice.tax_amount()) }}</div>
+            {% endif %}
+            {% if invoice.discount > 0 %}
+            <div>Discount: ${{ "%.2f"|format(invoice.discount) }}</div>
+            {% endif %}
+            <div class="total">Total: ${{ "%.2f"|format(invoice.total_amount()) }}</div>
+        </div>
+
+        {% if invoice.notes %}
+        <div class="notes">
+            <span class="section-title">Notes:</span>
+            <p>{{ invoice.notes }}</p>
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            Thank you for your business!
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block title %}Create Invoice | Neon Invoice{% endblock %}
+{% block content %}
+<div class="form-container">
+    <h1 class="form-title">Create New Invoice</h1>
+    
+    <form method="POST" id="invoice-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Client</label>
+                <select name="client_id" class="form-control" required>
+                    <option value="">Select Client</option>
+                    {% for client in clients %}
+                    <option value="{{ client.id }}">{{ client.name }} - {{ client.email }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Due Date</label>
+                <input type="date" name="due_date" class="form-control" required>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Invoice Items</label>
+            <div id="invoice-items" class="invoice-items">
+                <!-- Items will be added here dynamically -->
+            </div>
+            
+            <div class="add-item">
+                <select id="product-select" class="form-control">
+                    <option value="">Select Product</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}" data-price="{{ product.price }}">
+                        {{ product.name }} - ${{ "%.2f"|format(product.price) }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="button" id="add-item-btn" class="btn">Add Item</button>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Tax Rate (%)</label>
+                <input type="number" name="tax_rate" class="form-control" value="0" min="0" max="100" step="0.1">
+            </div>
+            
+            <div class="form-group">
+                <label>Discount ($)</label>
+                <input type="number" name="discount" class="form-control" value="0" min="0" step="0.01">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Notes</label>
+            <textarea name="notes" class="form-control" rows="3"></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" name="save" class="btn">Save Invoice</button>
+            <button type="submit" name="generate_pdf" class="btn primary-btn">Save & Generate PDF</button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .invoice-items {
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .invoice-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .invoice-item:last-child {
+        border-bottom: none;
+    }
+    
+    .invoice-item select,
+    .invoice-item input {
+        padding: 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 0.25rem;
+        background-color: var(--card);
+        color: var(--text);
+    }
+    
+    .invoice-item .quantity {
+        width: 60px;
+    }
+    
+    .invoice-item .price {
+        margin-left: auto;
+        font-weight: 600;
+    }
+    
+    .remove-item {
+        background: none;
+        border: none;
+        color: #d63031;
+        cursor: pointer;
+        font-size: 1.2rem;
+    }
+    
+    .add-item {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .add-item select {
+        flex: 1;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .primary-btn {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+</style>
+
+<script>
+    document.getElementById('add-item-btn').addEventListener('click', function() {
+        const productSelect = document.getElementById('product-select');
+        const selectedOption = productSelect.options[productSelect.selectedIndex];
+        
+        if (!selectedOption.value) return;
+        
+        const productId = selectedOption.value;
+        const productName = selectedOption.text.split(' - ')[0];
+        const productPrice = selectedOption.dataset.price;
+        
+        const itemHtml = `
+            <div class="invoice-item" data-product="${productId}">
+                <input type="hidden" name="product_id[]" value="${productId}">
+                <span>${productName}</span>
+                <input type="number" name="quantity[]" value="1" min="1" class="quantity">
+                <span class="price">$${productPrice}</span>
+                <button type="button" class="remove-item">&times;</button>
+            </div>
+        `;
+        
+        document.getElementById('invoice-items').insertAdjacentHTML('beforeend', itemHtml);
+        productSelect.selectedIndex = 0;
+        
+        // Add event listener to remove button
+        document.querySelector('.invoice-item:last-child .remove-item').addEventListener('click', function() {
+            this.closest('.invoice-item').remove();
+        });
+    });
+</script>
+{% endblock %}

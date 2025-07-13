@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Edit Expense | Neon Invoice{% endblock %}
+{% block content %}
+<div class="form-container floating">
+    <h1 class="form-title">Edit Expense</h1>
+    
+    <form method="POST" class="animate__animated animate__fadeIn">
+        <div class="form-group">
+            <label>Amount ($)</label>
+            <input type="number" name="amount" step="0.01" class="form-control" value="{{ expense.amount }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" name="date" class="form-control" value="{{ expense.date.strftime('%Y-%m-%d') }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="3" required>{{ expense.description }}</textarea>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category" class="form-control">
+                    <option value="Office Supplies" {% if expense.category == 'Office Supplies' %}selected{% endif %}>Office Supplies</option>
+                    <option value="Travel" {% if expense.category == 'Travel' %}selected{% endif %}>Travel</option>
+                    <option value="Equipment" {% if expense.category == 'Equipment' %}selected{% endif %}>Equipment</option>
+                    <option value="Software" {% if expense.category == 'Software' %}selected{% endif %}>Software</option>
+                    <option value="Other" {% if expense.category == 'Other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Project</label>
+                <select name="project_id" class="form-control">
+                    <option value="">No Project</option>
+                    {% for project in projects %}
+                    <option value="{{ project.id }}" {% if expense.project_id == project.id %}selected{% endif %}>
+                        {{ project.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn">Save Changes</button>
+            <a href="{{ url_for('expenses') }}" class="btn cancel-btn">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Setup 2FA | Neon Invoice{% endblock %}
+{% block content %}
+<div class="form-container">
+    <h1 class="form-title">Setup Two-Factor Authentication</h1>
+    
+    <div class="instructions-2fa">
+        <p>1. Scan the QR code below with your authenticator app (Google Authenticator, Authy, etc.)</p>
+        <div class="qr-code-container">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+        </div>
+        <p>2. Enter the 6-digit code from your authenticator app to verify</p>
+    </div>
+    
+    <a href="{{ url_for('verify_2fa') }}" class="btn btn-block">Continue to Verification</a>
+</div>
+
+<style>
+    .instructions-2fa {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .qr-code-container {
+        margin: 1.5rem 0;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .qr-code-container img {
+        width: 200px;
+        height: 200px;
+        border: 1px solid var(--border);
+        padding: 1rem;
+        background: white;
+    }
+</style>
+{% endblock %}

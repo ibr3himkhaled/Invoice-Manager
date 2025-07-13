@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}2FA Login | Neon Invoice{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form form-container floating">
+        <h1 class="form-title">Two-Factor Authentication</h1>
+        
+        <form method="POST" class="animate__animated animate__fadeIn">
+            <div class="form-group">
+                <label for="token">6-digit code</label>
+                <input type="text" id="token" name="token" class="form-control" placeholder="From your authenticator app" required>
+            </div>
+            
+            <button type="submit" class="btn btn-block">Verify</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

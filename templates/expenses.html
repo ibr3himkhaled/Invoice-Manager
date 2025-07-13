@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Expenses | Neon Invoice{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Expenses</h1>
+    <a href="{{ url_for('add_expense') }}" class="btn">+ New Expense</a>
+</div>
+
+<div class="filters">
+    <form method="GET" class="filter-form">
+        <div class="form-group">
+            <select name="project_id" class="form-control auto-submit">
+                <option value="">All Projects</option>
+                {% for project in projects %}
+                <option value="{{ project.id }}" {% if request.args.get('project_id')|int == project.id %}selected{% endif %}>
+                    {{ project.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</div>
+
+<div class="table-container animate__animated animate__fadeIn">
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Project</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr class="expense-row">
+                <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+                <td>${{ "%.2f"|format(expense.amount) }}</td>
+                <td>{{ expense.description|truncate(30) }}</td>
+                <td>{{ expense.category }}</td>
+                <td>{{ expense.project.name if expense.project else 'N/A' }}</td>
+                <td class="actions">
+                    <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="action-btn edit-btn">Edit</a>
+                    <a href="{{ url_for('delete_expense', expense_id=expense.id) }}" class="action-btn delete-btn">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .expense-row:hover {
+        background-color: rgba(108, 92, 231, 0.1);
+    }
+    
+    .filter-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .filter-form .form-group {
+        margin-bottom: 0;
+    }
+</style>
+{% endblock %}

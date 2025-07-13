@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Clients | Invoice Manager{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="clients-header">
+        <h1>Clients</h1>
+        <a href="{{ url_for('add_client') }}" class="btn">
+            <i class="fas fa-plus"></i> New Client
+        </a>
+    </div>
+
+    <div class="client-search-box">
+        <input type="text" id="client-search" placeholder="Search clients...">
+    </div>
+
+    <div class="clients-table-container">
+        <table class="clients-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr class="client-row">
+                    <td>{{ client.name }}</td>
+                    <td>{{ client.email }}</td>
+                    <td>{{ client.phone }}</td>
+                    <td>
+                        <div class="client-actions">
+                            <a href="{{ url_for('edit_client', client_id=client.id) }}" 
+                               class="client-action-btn edit-client-btn">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url_for('delete_client', client_id=client.id) }}" 
+                               class="client-action-btn delete-client-btn">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const clientSearch = document.getElementById('client-search');
+        if (clientSearch) {
+            clientSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('.client-row');
+                
+                rows.forEach(row => {
+                    const name = row.querySelector('td:first-child').textContent.toLowerCase();
+                    const email = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    const phone = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || email.includes(searchTerm) || phone.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Register | Neon Invoice{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-form form-container floating">
+        <h1 class="form-title">Create Account</h1>
+        
+        <form method="POST" class="animate__animated animate__fadeIn">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="johndoe" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="your@email.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn btn-block">Register</button>
+            
+            <div class="auth-footer">
+                Already have an account? <a href="{{ url_for('login') }}" class="auth-link">Login</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

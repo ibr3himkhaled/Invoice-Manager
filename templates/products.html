@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Products | Neon Invoice{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Products</h1>
+    <button id="toggle-form" class="btn">+ Add Product</button>
+</div>
+
+<div id="product-form-container" style="display: none;">
+  <form method="POST" action="{{ url_for('add_product') }}" class="form-container animate__animated animate__fadeIn">
+        <div class="form-group">
+            <label>Product Name</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Price</label>
+            <input type="number" name="price" step="0.01" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="3"></textarea>
+        </div>
+        
+        <button type="submit" class="btn btn-block">Add Product</button>
+    </form>
+</div>
+
+<div class="products-grid">
+    {% for product in products %}
+    <div class="product-card animate__animated animate__fadeIn">
+        <div class="product-header">
+            <h3>{{ product.name }}</h3>
+            <div class="product-price">${{ "%.2f"|format(product.price) }}</div>
+        </div>
+        
+        {% if product.description %}
+        <div class="product-description">
+            {{ product.description }}
+        </div>
+        {% endif %}
+        
+        <div class="product-actions">
+            <a href="{{ url_for('edit_product', product_id=product.id) }}" class="action-btn edit-btn">Edit</a>
+            <a href="{{ url_for('delete_product', product_id=product.id) }}" class="action-btn delete-btn">Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .product-card {
+        background-color: var(--card);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .product-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .product-header h3 {
+        color: var(--primary);
+    }
+
+    .product-price {
+        font-weight: 700;
+        color: var(--secondary);
+    }
+
+    .product-description {
+        color: var(--text);
+        opacity: 0.8;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>
+
+<script>
+    document.getElementById('toggle-form').addEventListener('click', function() {
+        const formContainer = document.getElementById('product-form-container');
+        formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+    });
+</script>
+{% endblock %}

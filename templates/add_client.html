@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Add Client | Neon Invoice{% endblock %}
+{% block content %}
+<div class="form-container floating">
+    <h1 class="form-title">Add New Client</h1>
+    
+    <form method="POST" class="animate__animated animate__fadeIn">
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" placeholder="client@example.com">
+        </div>
+        
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" class="form-control" placeholder="+1234567890">
+        </div>
+        
+        <div class="form-group">
+            <label>Address</label>
+            <textarea name="address" class="form-control" rows="3" placeholder="123 Main St, City, Country"></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn">Add Client</button>
+            <a href="{{ url_for('clients') }}" class="btn cancel-btn">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .cancel-btn {
+        background-color: var(--border);
+        color: var(--text);
+        margin-left: 1rem;
+    }
+    
+    .cancel-btn:hover {
+        background-color: var(--border);
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}
